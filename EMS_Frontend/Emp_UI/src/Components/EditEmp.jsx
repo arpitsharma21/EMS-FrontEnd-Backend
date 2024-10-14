@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom';
 import EmpService from '../Service/EmpService';
 
-function AddEmp() {
+const EditEmp = () => {
 
     const [emp, setEmp] = useState({
+        id:"",
         firstName: "",
         lastName: "",
         email: "",
@@ -18,36 +20,38 @@ function AddEmp() {
 
     const [msg, setMsg] = useState("");
 
-    const submitEmp = (e) => {
+    const navigate = useNavigate();
+
+    const updateEmp = (e) => {
         e.preventDefault();
-        EmpService.
-            saveEmp(emp)
-            .then((res) => {
-                setMsg("Employee Added Successfully");
-                setEmp({
-                    firstName: "",
-                    lastName: "",
-                    email: "",
-                    address: "",
-                    salary: ""
-                })
-            }).catch((error) => {
-                console.log(error);
-            })
+        EmpService.updateEmp(emp.id).then((res) =>{
+            navigate("/");
+        }).catch((error) =>{
+            console.log(error)
+        })
     }
 
+    const data = useParams();
+
+    useEffect(() => {
+        EmpService.getEmpById(data.id).then((res) => (
+            setEmp(res.data)
+        )).catch((error) => (
+            console.log(error)
+        ))
+    }, [])
 
     return (
         <>
-            <div className='container'>
+            <div className='container mt-2'>
                 <div className="row">
                     <div className="col-md-6 offset-md-3">
                         <div className="card">
-                            <div className="card-header text-center fs-3">Add Emp
+                            <div className="card-header text-center fs-3">Edit Emp
                                 {msg && <p className='text-success'>{msg}</p>}
                             </div>
                             <div className="card-body">
-                                <form onSubmit={(e) => submitEmp(e)}>
+                                <form onSubmit={(e) => updateEmp(e)}>
                                     <div className="mb-3">
                                         <label >Enter First Name</label>
                                         <input type='text' className='form-control' name='firstName' value={emp.firstName}
@@ -75,7 +79,7 @@ function AddEmp() {
                                     </div>
 
                                     <div className='text-center'>
-                                        <button className='btn btn-success'>Submit</button>
+                                        <button className='btn btn-success'>Update</button>
                                         <input type='Reset' className='btn btn-danger ms-2' value="Reset" />
                                     </div>
                                 </form>
@@ -88,4 +92,4 @@ function AddEmp() {
     )
 }
 
-export default AddEmp
+export default EditEmp
